@@ -42,7 +42,7 @@ func addFlags(flags *pflag.FlagSet) {
 }
 
 func run(cmd *cobra.Command, argv []string) error {
-	spokeDeployer, err := clustermanagement.BuildSpokeDeployer(args.kubeconfig, false)
+	spokeDeployer, err := clustermanagement.BuildSpokeDeployer(args.kubeconfig)
 	if err != nil {
 		return fmt.Errorf("failed to build spoke deployer with %q: %v", args.kubeconfig, err)
 	}

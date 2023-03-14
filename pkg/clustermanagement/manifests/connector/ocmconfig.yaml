@@ -1,0 +1,7 @@
+dataDirectory: /.ocm
+apiserver:
+  externalHostname: {{ .Hostname }}
+  port: 9443
+etcd:
+  mode: embed
+  prefix: multicluster-controlplane

@@ -38,7 +38,7 @@ func base64encode(v []byte) string {
 	return base64.StdEncoding.EncodeToString(v)
 }
 
-func MustCreateObjectFromTemplate(file string, tb []byte, config interface{}) runtime.Object {
+func MustRenderFromTemplate(file string, tb []byte, config interface{}) []byte {
 	tmpl, err := template.New(file).Funcs(templateFuncs).Parse(string(tb))
 	if err != nil {
 		panic(err)
@@ -48,7 +48,11 @@ func MustCreateObjectFromTemplate(file string, tb []byte, config interface{}) ru
 		panic(err)
 	}
 
-	raw := buf.Bytes()
+	return buf.Bytes()
+}
+
+func MustCreateObjectFromTemplate(file string, tb []byte, config interface{}) runtime.Object {
+	raw := MustRenderFromTemplate(file, tb, config)
 
 	obj, _, err := genericCodec.Decode(raw, nil, nil)
 	if err != nil {

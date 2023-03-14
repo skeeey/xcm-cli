@@ -9,6 +9,7 @@ import (
 	"github.com/skeeey/xcm-cli/pkg/genericflags"
 	clusterclient "open-cluster-management.io/api/client/cluster/clientset/versioned"
 	clusterv1 "open-cluster-management.io/api/cluster/v1"
+	clusterv1alpha1 "open-cluster-management.io/api/cluster/v1alpha1"
 
 	"k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/api/meta"
@@ -18,8 +19,7 @@ import (
 
 const ManagedClusterConditionConnected string = "ManagedClusterConditionConnected"
 
-func CreateManagedCluster(ctx context.Context, clusterClient clusterclient.Interface,
-	controlPlane bool, controlPlaneID, clusterName string) error {
+func CreateManagedCluster(ctx context.Context, clusterClient clusterclient.Interface, clusterName string) error {
 	return wait.Poll(10*time.Second, genericflags.TimeOut(), func() (bool, error) {
 		_, err := clusterClient.ClusterV1().ManagedClusters().Get(ctx, clusterName, metav1.GetOptions{})
 		if errors.IsNotFound(err) {
@@ -28,10 +28,6 @@ func CreateManagedCluster(ctx context.Context, clusterClient clusterclient.Inter
 				&clusterv1.ManagedCluster{
 					ObjectMeta: metav1.ObjectMeta{
 						Name: clusterName,
-						Labels: map[string]string{
-							"control-plane":    fmt.Sprintf("%t", controlPlane),
-							"control-plane-id": controlPlaneID,
-						},
 					},
 					Spec: clusterv1.ManagedClusterSpec{
 						HubAcceptsClient: true,
@@ -51,6 +47,32 @@ func CreateManagedCluster(ctx context.Context, clusterClient clusterclient.Inter
 
 		return true, nil
 	})
+}
+
+func CreateClusterClaim(ctx context.Context, clusterClient clusterclient.Interface, claim *clusterv1alpha1.ClusterClaim) (string, error) {
+	var value string
+	err := wait.Poll(10*time.Second, genericflags.TimeOut(), func() (bool, error) {
+		found, err := clusterClient.ClusterV1alpha1().ClusterClaims().Get(ctx, claim.Name, metav1.GetOptions{})
+		if errors.IsNotFound(err) {
+			if _, err := clusterClient.ClusterV1alpha1().ClusterClaims().Create(ctx, claim, metav1.CreateOptions{}); err != nil {
+				return false, nil
+			}
+
+			value = claim.Spec.Value
+			return true, nil
+		}
+
+		if err != nil {
+			return false, nil
+		}
+
+		value = found.Spec.Value
+
+		return true, nil
+	})
+
+	return value, err
+
 }
 
 func WaitManagedClusterConnected(ctx context.Context, clusterClient clusterclient.Interface, clusterName string) error {

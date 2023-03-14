@@ -1,6 +1,6 @@
 #!/bin/bash
 
-server="52.14.76.170"
+server="18.117.108.103"
 token=""
 
 # curl -v -X 'GET' \

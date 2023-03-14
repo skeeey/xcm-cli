@@ -6,12 +6,12 @@ const OfflineTokenPage = "https://console.redhat.com/openshift/token" // #nosec 
 const ManagedClusterCRDName = "managedclusters.cluster.open-cluster-management.io"
 
 const (
-	ControlPlaneName            = "multicluster-controlplane"
-	ControlPlaneAdminSecretName = "controlplane-admin"
-	ControlPlaneAdminFileName   = "controlplane-admin.kubeconfig"
+	ControlPlaneName                 = "multicluster-controlplane"
+	ControlPlaneKubeconfigSecretName = "multicluster-controlplane-kubeconfig"
+	ControlPlaneKubeAdminFileName    = "controlplane-admin.kubeconfig"
 )
 
 const (
-	DefaultControlPlaneNamespace = "multicluster-controlplane"
-	DefaultKlusterletNamespace   = "open-cluster-management-agent"
+	DefaultControlPlaneNamespace      = "multicluster-controlplane"
+	DefaultControlPlaneAgentNamespace = "multicluster-controlplane-agent"
 )
